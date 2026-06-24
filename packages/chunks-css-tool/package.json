@@ -1,0 +1,24 @@
+{
+    "name": "@react-ssr-pack/chunks-css-tool",
+    "version": "1.2.0",
+    "description": "Package chunks-css-tool - Part of toolkit for creating a server side rendering application in React",
+    "main": "./lib/index.js",
+    "types": "./lib/index.d.ts",
+    "author": "Lev Dmitriev",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:frolant/react-ssr-pack.git"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "browserslist": [
+        "last 2 versions"
+    ],
+    "scripts": {
+        "build": "node ../../run build chunks-css-tool isNodeTarget",
+        "watch:to:lib": "node ../../run watch-to-lib chunks-css-tool isNodeTarget",
+        "watch:to:app": "node ../../run watch-to-app chunks-css-tool isNodeTarget"
+    }
+}

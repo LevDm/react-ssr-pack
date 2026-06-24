@@ -1,0 +1,20 @@
+{
+    "name": "@react-ssr-pack/chunks-css-manifest-plugin",
+    "version": "1.2.0",
+    "description": "Package chunks-css-manifest-plugin - Part of toolkit for creating a server side rendering application in React",
+    "main": "./lib/index.js",
+    "author": "Lev Dmitriev",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:frolant/react-ssr-pack.git"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "scripts": {
+        "build": "node ../../tools/update-library-from-source chunks-css-manifest-plugin",
+        "watch:to:lib": "echo Watch mode not supported && exit 0",
+        "watch:to:app": "echo Watch mode not supported && exit 0"
+    }
+}

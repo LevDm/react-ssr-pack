@@ -1,7 +1,9 @@
 import type { FC } from 'react';
+import type { IGetChunkCssLinks } from '@react-ssr-pack/chunks-css-tool';
 
 export type TRenderAppConfig<OptionsExtension = Record<string, unknown>> = OptionsExtension & {
     app: FC;
+    getChunkCssLinks?: IGetChunkCssLinks;
 };
 
 export interface TRenderServerAppRequestOptions {
