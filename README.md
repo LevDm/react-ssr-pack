@@ -119,7 +119,63 @@ module.exports = {
 
 This is plugin for resolving and proxying react library on server side build with replace useEffect hook functional.
 
-#### 2.3 @react-ssr-pack/server and @react-ssr-pack/tools
+#### 2.3 @react-ssr-pack/chunks-css-manifest-plugin and @react-ssr-pack/chunks-css-tool
+
+A plugin for lazy pages: based on webpack mechanisms (webpackChunkName comments) it generates a JSON file where the key is the page's base path and the value is the list of .css files required for that page.
+
+Usage:
+```javascript
+module.exports = {
+    // ...Your webpack client side config
+    plugins: [
+        // ...Your other plugins
+        new ChunksCssManifestPlugin(),
+    ],
+}
+```
+
+Lazy pages must be configured like this:
+```javascript
+const HomePage = React.lazy(() => import(/* webpackChunkName: "page--home" */ './pages/Home'));
+const AboutPage = React.lazy(() => import(/* webpackChunkName: "page--about" */ './pages/About'));
+const UserProfilePage = React.lazy(() => import(/* webpackChunkName: "page--user-profile" */ './pages/UserProfile'));
+```
+
+Generated manifest JSON example:
+```javascript
+{
+    "home": [
+        "styles/vendor.css?1a2b3c4d",
+        "styles/page--home.css?1a2b3c4d",
+        ...
+    ],
+    "user-profile": [
+        "styles/vendor.css?1a2b3c4d",
+        "styles/page--profile.css?1a2b3c4d",
+        ...
+    ],
+    ...
+}
+```
+
+The createGetterChunkCssLinks utility returns a function that accepts a page URL and returns an HTML <link> string to be inserted into the <head> of the HTML document during server-side rendering.
+The utility also returns only unique CSS links — anything already included in the HTML template is excluded from the result.
+
+Usage:
+```javascript
+import { runAppServer } from '@react-ssr-pack/server';
+import { createGetterChunkCssLinks } from '@react-ssr-pack/chunks-css-tool';
+
+runAppServer({
+    // ... other runAppServer options,
+    appConfig: {
+        // ... other appConfig options
+        getChunkCssLinks: createGetterChunkCssLinks()
+    }
+});
+```
+
+#### 2.4 @react-ssr-pack/server and @react-ssr-pack/tools
 
 Below is an example using Express web server built into the @react-ssr-pack/server package.
 You can choose a different server and set it up yourself using this one as an example.

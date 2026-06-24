@@ -1,6 +1,6 @@
 import { logExecution, logLevels, logTrace } from '../logger';
 
-import { getServerAppHTML, htmlTemplate, getRequestData } from './utils';
+import { getServerAppHTML, htmlTemplate, getRequestData, getHeadServerAppHTML } from './utils';
 
 import type { TLogLevels } from '../logger';
 import type { TRenderAppConfig, TServerAppRender, IStateCacheService } from '../../types';
@@ -24,6 +24,7 @@ export const getServerAppPageContent: TGetServerAppPageContent = async (stateCac
     serverAppRender,
     appConfig: {
         app,
+        getChunkCssLinks,
         ...restAppConfig
     },
     logLevel,
@@ -61,7 +62,25 @@ export const getServerAppPageContent: TGetServerAppPageContent = async (stateCac
 
         const isSuccessResponseCode = responseCode === defaultResponseCode;
 
-        contentResult = isSuccessResponseCode ? getServerAppHTML(originalUrl, head, content) : htmlTemplate;
+        contentResult = htmlTemplate;
+
+        if (isSuccessResponseCode) {
+            const headData = getHeadServerAppHTML({
+                head,
+                originalUrl
+            });
+
+            const cssLinks = getChunkCssLinks(originalUrl);
+
+            contentResult = getServerAppHTML({
+                head: {
+                    center: headData,
+                    end: cssLinks
+                },
+                content
+            });
+        }
+
         responseLocationResult = responseLocation;
         responseCodeResult = responseCode;
 

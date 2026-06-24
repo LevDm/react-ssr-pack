@@ -6,7 +6,18 @@ import { stateAddressPart } from '../../constants';
 import type { Request } from 'express';
 import type { TRenderServerAppRequestOptions } from '../../types';
 
-type TGetServerAppHTML = (originalUrl: string, head: string, content: string) => string;
+type TGetServerAppHTML = (args: {
+    head: {
+        center: string;
+        end?: string;
+    };
+    content: string;
+}) => string;
+
+type TGetHeadServerAppHTML = (args: {
+    originalUrl: string;
+    head: string;
+}) => string;
 
 const templatePath = resolve(__dirname, './template.html');
 const titleRegexp = /<title>.*<\/title>/;
@@ -14,24 +25,45 @@ const container = {
     start: '<div id="root">',
     end: '</div>'
 };
+const HEAD_END = '</head>';
 
 export const htmlTemplate = fs.readFileSync(templatePath, {
     encoding: 'utf-8'
 });
 
 const templateProcessedHeadParts = htmlTemplate.split(titleRegexp);
-const templateProcessedContentParts = templateProcessedHeadParts[1].split(`${container.start}${container.end}`);
+const templateProcessedCenterParts = templateProcessedHeadParts[1].split(HEAD_END);
+const templateProcessedContentParts = templateProcessedCenterParts[1].split(`${container.start}${container.end}`);
 
 const template = {
-    top: templateProcessedHeadParts[0],
-    center: templateProcessedContentParts[0],
-    bottom: templateProcessedContentParts[1]
+    top: {
+        start: templateProcessedHeadParts[0], // [..., <title>]
+        center: templateProcessedCenterParts[0], // [</title>, </head>]
+        end: HEAD_END
+    },
+    bottom: {
+        start: `${templateProcessedContentParts[0]}${container.start}`, // [</head>, <div id="root">]
+        end: `${container.end}${templateProcessedContentParts[1]}` // [</div>, ...]
+    }
 };
 
-export const getServerAppHTML: TGetServerAppHTML = (url = '', head = '', content = '') => {
-    const headData = `${head}\r\n<script defer src="${stateAddressPart}${encodeURIComponent(url)}"></script>`;
-    return `${template.top}${headData}${template.center}${container.start}${content}${container.end}${template.bottom}`;
-};
+export const getHeadServerAppHTML: TGetHeadServerAppHTML = ({
+    originalUrl,
+    head = ''
+}) => (
+    `${head}\r\n<script defer src="${stateAddressPart}${encodeURIComponent(originalUrl)}"></script>`
+);
+
+export const getServerAppHTML: TGetServerAppHTML = ({
+    head = {
+        center: '',
+        end: ''
+    },
+    content = ''
+}) => (
+    `${template.top.start}${head.center}${template.top.center}${head.end || ''}${template.top.end}`
+    + `${template.bottom.start}${content}${template.bottom.end}`
+);
 
 export const getRequestData = (request: Request): TRenderServerAppRequestOptions => {
     const { originalUrl, protocol, hostname, headers } = request;
